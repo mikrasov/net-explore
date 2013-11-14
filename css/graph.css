@@ -1,0 +1,65 @@
+
+.edge {
+  fill: none;
+  stroke: #000;
+  stroke-width: 4px;
+  cursor: pointer;
+}
+
+
+.node rect{
+  stroke-width: 1.5px;
+  cursor: pointer;
+  fill: #FFF;
+  stroke: #000;
+}
+
+.node circle{
+  stroke-width: 1.5px;
+  cursor: pointer;
+  fill: #FFF;
+  stroke: #000;
+}
+
+marker path{
+  fill: #000;
+  stroke: #000;
+}
+
+text {
+  font: 12px sans-serif;
+  pointer-events: none;
+}
+
+.node .private{
+	fill: #FFCC66;
+}
+.node .public{
+	fill: #0099CC;
+}
+.node .localhost{
+	fill: #CCFF99;
+}
+
+.node-label {
+  text-anchor: middle;
+  font-weight: bold;
+}
+
+path.selected, .selected rect, .selected circle, .edge .selected{
+  stroke: #F00;
+  color: #F00;
+}
+
+marker path.selected{
+  fill: #F00;
+}
+
+
+path.old-data, .old-data rect{
+  stroke-dasharray: 10,7; 
+}
+
+.filtered{
+  display: none;
+}

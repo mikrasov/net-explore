@@ -1,0 +1,86 @@
+body {
+	margin: 0;
+	padding: 0;
+	background-color: #FFF;
+	overflow: hidden;
+}
+
+#topbar {
+	background-color: #FFE;
+	height: 50px;
+	overflow: none;
+}
+
+#slider {
+	margin-left: 25px;
+	margin-right: 75px;
+	background-color: #EEE;
+}
+
+#slider-time-start{
+ position: absolute;
+ margin-left: 25px;
+
+
+}
+
+#slider-time-end{
+ position: absolute;
+	right:75px;
+}
+
+#slider-time-now{
+ text-align: center;
+ font-weight: bold; 
+ margin-right: 75px;
+}
+
+#controls {
+	position: absolute;
+	top: 0px;
+	right:0px;
+	width: 50px;
+	height: 50px;
+	z-index:11;
+	cursor: pointer;
+	background-image:url('../img/play.png');
+}
+#controls.playing {
+	background-image:url('../img/pause.png');
+}
+
+#filter{
+	padding: 5px;
+}
+#sidebar {
+	position: fixed;
+	right:0px;
+	width: 300px;
+	height: 100%;
+	background-color:#fff;
+	border-left: solid 2px #000;
+	border-top: solid 2px #000;
+	padding: 10px;
+	z-index:10;
+	color: #000; 
+	background-color: #FFF;
+
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+#net-graph{
+	border-top: solid 2px #000;
+}
+#net-graph svg{	
+	background-color: #FFF;
+	position:absolute;
+	height:100%;
+	width: 100%;
+	top:0px //Adjust this value
+	margin-left:0px; //Adjust this value
+	min-height: 2000px;
+}
+#sidebar.old-data{
+  color: #300; 
+  background-color: #DDD;
+}
