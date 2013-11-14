@@ -3,13 +3,6 @@ var width  = 1024;
 var height = 768;
 
   
-var ipLabelTable = [
-	{ re: /(^127\.0\.0\.1)/, network: "localhost"},
-	{ re: /(^10\.)/, network: "private"},
-	{ re: /(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)/, network: "private"},
-	{ re: /(^192\.168\.)/, 	network: "private"}
-];
-  
 var graph = {
 	flow: {
 		dict: [],
@@ -149,8 +142,6 @@ function updateGraph() {
   .classed("old-data", markAsOld)
   .classed("filtered", invertFilter(elementFilter));
   
-  console.log("init");
-  console.log(edges);
    
   // add new links
   edges.enter().append('svg:path')
@@ -220,7 +211,6 @@ function forwardAlpha(layout, alpha, max) {
 }
 	
 
-  
 function invertFilter(filter){
 	return function(data){
 		return !filter(data);

@@ -145,8 +145,10 @@
   function calculateElementOpacity(data){
 	var difference = (currentTime - data.lastSeen)/timeStep;
 
-	if(difference <= 0) 
+	if(difference == 0) 
 		return 1;
+	else if(difference < 0)
+		difference = -difference;
 	
 	var fade = 0.90 - (0.10*Math.log(difference));
 

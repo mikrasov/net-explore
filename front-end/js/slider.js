@@ -1,7 +1,17 @@
+var timeSlider;
+var timeSliderElement = d3.select("#slider");
+var timeSliderHandle
 
 var currentTime;
+var sliderWasUpdated = true;
 var timeOffset;
 var timeStep = 1;
+
+var simulation = null;
+var controls = d3.select("#controls");
+var playSpeed = 1000;
+
+var minTime, maxTime;
 
 
 function humanTime(currentTime){
@@ -9,10 +19,6 @@ function humanTime(currentTime){
 	time.zone(timeOffset);
 	return time.format("MMM DD YYYY - hh:mm:ss"); 
 }
-
-var simulation = null;
-var controls = d3.select("#controls");
-var playSpeed = 1000;
 
 function updatePlaySpeed(){
 	var control =  d3.select("#play-speed").node();
@@ -34,12 +40,9 @@ function togglePlay(){
 			if(currentTime >= 1328372758 ){
 				clearInterval(simulation);
 			}
-			
-			
+
 			itIsNow(currentTime + timeStep);
 			proccessData(data[currentTime], currentTime);
-			updateLayout();
-
 
 		},playSpeed);
 	}
@@ -49,17 +52,8 @@ function togglePlay(){
 	}
 }
 
-var minTime, maxTime;
-for (var key in data) {	
-	if(minTime == undefined) minTime = key;
-	maxTime = key;
-}
-
-var timeSlider;
-var timeSliderElement = d3.select("#slider");
 
 function drawSlider(timeSliderValue){
-console.log(timeSliderValue);
 	timeSlider =  d3.slider()
 					.axis(false)
 					.min(minTime)
@@ -68,11 +62,14 @@ console.log(timeSliderValue);
 					.value(timeSliderValue)
 					.on("slide", function(evt, value) {
 						currentTime = value;
+						sliderWasUpdated = true;
 						d3.select("#slider-time-now").html(humanTime(value));
+						timeSliderHandle.classed("no-data",false);
 					})
 	timeSliderElement.selectAll("svg").remove();
 	timeSliderElement.selectAll("a").remove();
 	timeSliderElement.call(timeSlider);
+	timeSliderHandle = d3.select(".d3-slider-handle");
 }
 
 function updateTimeOffset(){

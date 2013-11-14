@@ -68,19 +68,15 @@ body {
 	overflow-y: scroll;
 	overflow-x: hidden;
 }
-#net-graph{
+#network-layout{
 	border-top: solid 2px #000;
 }
-#net-graph svg{	
-	background-color: #FFF;
-	position:absolute;
-	height:100%;
-	width: 100%;
-	top:0px //Adjust this value
-	margin-left:0px; //Adjust this value
-	min-height: 2000px;
-}
+
 #sidebar.old-data{
   color: #300; 
   background-color: #DDD;
+}
+
+.no-data{
+	background: linear-gradient(to bottom, #f00 0%, #ddd 100%);
 }

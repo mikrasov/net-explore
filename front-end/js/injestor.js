@@ -1,7 +1,7 @@
 var longitudinalCounter = 0;
 var latitudinalCounter = 0;
 function proccessData(map, timestamp){
-
+	
 	function proccess(type, maping){
 		for (var key in maping) {	
 			var data = maping[key];
@@ -29,13 +29,7 @@ function proccessData(map, timestamp){
 					longitudinalCounter += 1;
 				}
 		
-				entry.network = "public";
-				for (var ip in ipLabelTable) {
-		
-					if( ipLabelTable[ip].re.test(data.ip) ){
-						entry.network = ipLabelTable[ip].network;
-					}
-				}
+				entry.network = data.network;		
 			}
 			
 			//Add Connectedness to edges
@@ -51,13 +45,22 @@ function proccessData(map, timestamp){
 			}	
 		}
 	}
+
 	console.log("Proccess Data: "+ timestamp);
+	
+	if(map == undefined){
+		console.log("NO DATA");
+		timeSliderHandle.classed("no-data", true);
+		return;
+	}
 
 	proccess("device", map.devices);
 	proccess("flow", map.flows);
 	proccess("node", map.nodes);
 	proccess("edge", map.edges);
 
-
+	updateLayout();
+	
 	console.log(graph);
+	timeSliderHandle.classed("no-data", false);
 }
