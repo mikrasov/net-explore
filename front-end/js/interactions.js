@@ -142,6 +142,18 @@
 	
   }
 
+  function calculateDashes(data){
+	var delay = Math.ceil(Math.log(data.data.delay)-5)*2;
+	if(delay < 0) delay = 0;
+	return ("5, "+delay);
+  }
+
+  function calculateWidth(data){
+	var utilization = Math.ceil( Math.log(data.data.currentUtilization)-7)*2;
+	if(utilization <= 1) utilization = 1;
+	return utilization;
+  }
+  
   function calculateElementOpacity(data){
 	var difference = (currentTime - data.lastSeen)/timeStep;
 

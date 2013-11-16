@@ -60,13 +60,16 @@ path.selected, .selected rect, .selected circle, .edge .selected{
   color: #F00;
 }
 
-marker path.selected{
+marker path{
+  stroke: none;
+}
+
+marker.selected path{
   fill: #F00;
 }
 
-
 path.old-data, .old-data rect{
-  stroke-dasharray: 10,7; 
+  /*stroke-dasharray: 10,7; */
 }
 
 .filtered{

@@ -12,14 +12,14 @@ body {
 }
 
 #slider {
-	margin-left: 25px;
+	margin-left: 50px;
 	margin-right: 75px;
 	background-color: #EEE;
 }
 
 #slider-time-start{
  position: absolute;
- margin-left: 25px;
+ margin-left: 50px;
 
 
 }
@@ -32,6 +32,7 @@ body {
 #slider-time-now{
  text-align: center;
  font-weight: bold; 
+ margin-left: 50px;
  margin-right: 75px;
 }
 
@@ -47,6 +48,29 @@ body {
 }
 #controls.playing {
 	background-image:url('../img/pause.png');
+}
+
+#toggle-advanced {
+	position: absolute;
+	top: 0px;
+	left:0px;
+	width: 32px;
+	height: 32px;
+	z-index:11;
+	cursor: pointer;
+	background-image:url('../img/go-down.png');
+}
+
+#toggle-advanced.show{
+	background-image:url('../img/go-up.png');
+}
+
+#advanced-controls{
+	display: none;
+}
+
+#advanced-controls.show{
+	display: block;
 }
 
 #filter{

@@ -11,7 +11,7 @@ var simulation = null;
 var controls = d3.select("#controls");
 var playSpeed = 1000;
 
-var minTime, maxTime;
+
 
 
 function humanTime(currentTime){
@@ -37,13 +37,10 @@ function togglePlay(){
 	if(simulation == null){
 		simulation = setInterval(function(){
 
-			if(currentTime >= 1328372758 ){
-				clearInterval(simulation);
+			if(currentTime <= maxTime ){
+				proccessData(data[currentTime], currentTime);
+				itIsNow(currentTime + timeStep);
 			}
-
-			itIsNow(currentTime + timeStep);
-			proccessData(data[currentTime], currentTime);
-
 		},playSpeed);
 	}
 	else{

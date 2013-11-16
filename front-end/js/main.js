@@ -1,17 +1,13 @@
 
 var layoutType;
+var showingAdvanced = false;
 
-//calculate data bounds
-for (var key in data) {	
-	if(minTime == undefined) minTime = key;
-	maxTime = key;
-}
 
 
 itIsNow(minTime);
 updateTimeOffset();
 selectLayout("force");
-drawSlider(0);
+drawSlider(currentTime);
 
 window.onresize = function(){
 	var timeSliderValue = timeSlider.value();
@@ -51,5 +47,11 @@ function selectLayout(type){
 
 	layoutType = type;
 	updateLayout();
+}
+
+function toggleAdvanced(){
+	showingAdvanced = !showingAdvanced;
+	d3.select("#advanced-controls").classed("show", showingAdvanced);
+	d3.select("#toggle-advanced").classed("show", showingAdvanced);
 }
 

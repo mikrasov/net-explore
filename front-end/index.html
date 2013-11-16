@@ -13,33 +13,15 @@
   <body onLoad="">
 	<div id="topbar">
 		<div id="controls" onClick="togglePlay()"></div>
+		<div id="toggle-advanced" onClick="toggleAdvanced()"></div>
 		<div id="slider"></div>
 		<div id="slider-time-end"></div>
 		<div id="slider-time-start"></div>
 		<div id="slider-time-now"></div>
 		
 	</div>
-	<div id="filter">
-		Remove After:
-		<select id="filter-duration" onchange="updateLayout()">
-		  <option value="">Never</option>
-		  <option value="60">1 Minute</option>
-		  <option value="15">15 Seconds</option>
-		  <option value="1">1 Seconds</option>
-		</select>
-		Protocols:
-		<select id="filter-protocol" onchange="updateLayout()">
-		  <option value="">All</option>
-		  <option value="udp">UDP</option>
-		  <option value="tcp">TCP</option>
-		</select>
-		Network:
-		<select id="filter-network" onchange="updateLayout()">
-		  <option value="">All</option>
-		  <option value="private">Local</option>
-		  <option value="public">Public</option>
-		</select>
-		Offset:
+	<div id="advanced-controls">
+	Offset:
 		<select id="time-offset" onchange="updateTimeOffset()">
 		  <option value="-1200">-12:00</option>
 		  <option value="-1100">-11:00</option>
@@ -101,6 +83,27 @@
 		  <option value="4000">(1/4)x</option>
 		  <option value="8000">(1/8)x</option>
 		</select>
+		<br/>
+		Remove After:
+		<select id="filter-duration" onchange="updateLayout()">
+		  <option value="">Never</option>
+		  <option value="60">1 Minute</option>
+		  <option value="15">15 Seconds</option>
+		  <option value="1">1 Seconds</option>
+		</select>
+		Protocols:
+		<select id="filter-protocol" onchange="updateLayout()">
+		  <option value="">All</option>
+		  <option value="udp">UDP</option>
+		  <option value="tcp">TCP</option>
+		</select>
+		Network:
+		<select id="filter-network" onchange="updateLayout()">
+		  <option value="">All</option>
+		  <option value="private">Local</option>
+		  <option value="public">Public</option>
+		</select>
+		
 		
 	</div>
 	<div id="sidebar"> 
@@ -114,7 +117,7 @@
   </body>
 
   <!--
-<script src="http://localhost/socket.io/socket.io.js"></script>
+
 
 <script>
   var socket = io.connect('http://localhost');
@@ -126,12 +129,14 @@
 
 -->
   <script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=true"></script>
+  <script src="http://localhost:8080/socket.io/socket.io.js"></script>
   <script type="text/javascript" src="lib/d3.v3.min.js"></script>
   <script type="text/javascript" src="lib/d3.slider.js"></script>
   <script type="text/javascript" src="lib/moment.min.js"></script>
   <script type="text/javascript" src="lib/jquery-1.9.0.min.js"></script>
  
-  <script type="text/javascript" src="js/data.js"></script>
+  <script type="text/javascript" src="js/sample_data.js"></script>
+  <script type="text/javascript" src="js/data_buffer.js"></script> 
   <script type="text/javascript" src="js/interactions.js"></script>
   <script type="text/javascript" src="js/graph.js"></script>
   <script type="text/javascript" src="js/map.js"></script>

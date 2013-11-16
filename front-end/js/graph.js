@@ -58,7 +58,7 @@ function createGraph(elementId){
 	
  svg.append("defs").append("marker")
     .attr("id", "end-arrow-selected")
-	.attr("class", "selected")
+	.classed("selected", true)
     .attr("refX", 6) 
 	.attr("viewBox", "0 -5 10 10")
     .attr("markerWidth", 3)
@@ -69,6 +69,7 @@ function createGraph(elementId){
  
  svg.append("defs").append("marker")
     .attr("id", "start-arrow-selected")
+	.classed("selected", true)
     .attr("refX", 4) 
 	.attr("viewBox", "0 -5 10 10")
     .attr("markerWidth", 3)
@@ -139,6 +140,8 @@ function updateGraph() {
   // update existing links
   edges.style('marker-end', function(d) { return 'url(#end-arrow)'; })
   .style("opacity", calculateElementOpacity)
+  .style("stroke-width", calculateWidth)
+  .style("stroke-dasharray", calculateDashes)
   .classed("old-data", markAsOld)
   .classed("filtered", invertFilter(elementFilter));
   
@@ -148,6 +151,8 @@ function updateGraph() {
     .attr('class', 'edge')
 	.attr("id", function(d) { return "edge-" + d.id; })
 	.style('marker-end', function(d) { return 'url(#end-arrow)'; })
+	.style("stroke-width", calculateWidth)
+	.style("stroke-dasharray", calculateDashes)
     .on("mouseover", graphElementHover)
 	.on("mouseout", graphElementHoverOff)
 	.on("click", graphElementSelected)
@@ -184,11 +189,25 @@ function updateGraph() {
 	.attr('x', -50)
 	.attr('y', -25)
 	.attr('class', function(d){return d.network} );
+	
+  nodeContent.append('svg:rect')
+	.attr('width', 80)
+	.attr('height', 10)
+	.attr('x', -40)
+	.attr('y', 15)
+
+	
+  nodeContent.append('svg:rect')
+	.attr('width', 80)
+	.attr('height', 10)
+	.attr('x', -40)
+	.attr('y', 5)
+    
     
   // show node Labels
   nodeContent.append('svg:text')
       .attr('x', 0)
-      .attr('y', 4)
+      .attr('y', -5)
       .attr('class', 'node-label')
       .text(function(d) { return d.data.ip; });
 
