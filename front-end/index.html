@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Directed Graph </title>
+    <title>Network Explorer</title>
     <link rel="stylesheet" href="css/d3.slider.css">
 	<link rel="stylesheet" href="css/graph.css">
 	<link rel="stylesheet" href="css/map.css">
@@ -11,6 +11,9 @@
   </head>
   
   <body onLoad="">
+  <div id="loader"></div>
+  <div id="app">
+	
 	<div id="topbar">
 		<div id="controls" onClick="togglePlay()"></div>
 		<div id="toggle-advanced" onClick="toggleAdvanced()"></div>
@@ -19,9 +22,9 @@
 		<div id="slider-time-start"></div>
 		<div id="slider-time-now"></div>
 		
-	</div>
+	
 	<div id="advanced-controls">
-	Offset:
+		<p class="label">Offset: </p>
 		<select id="time-offset" onchange="updateTimeOffset()">
 		  <option value="-1200">-12:00</option>
 		  <option value="-1100">-11:00</option>
@@ -64,13 +67,13 @@
 		  <option value="+1400">+14:00</option>
 		</select>
 		
-		Layout:
+		<p class="label">Layout:</p>
 		<select id="layout-control" onchange="selectLayout()">
 		  <option value="force">Graph</option>
 		  <option value="map">Map</option>
 		</select>
 		
-		Speed:
+		<p class="label">Speed:</p>
 		<select id="play-speed" onchange="updatePlaySpeed()">
 		  <option value="1">MAX</option>
 		  <option value="31">32x</option>
@@ -84,36 +87,33 @@
 		  <option value="8000">(1/8)x</option>
 		</select>
 		<br/>
-		Remove After:
+		
+		<p class="label">Remove After:</p>
 		<select id="filter-duration" onchange="updateLayout()">
 		  <option value="">Never</option>
 		  <option value="60">1 Minute</option>
 		  <option value="15">15 Seconds</option>
 		  <option value="1">1 Seconds</option>
 		</select>
-		Protocols:
+		<p class="label">Protocols:</p>
 		<select id="filter-protocol" onchange="updateLayout()">
 		  <option value="">All</option>
 		  <option value="udp">UDP</option>
 		  <option value="tcp">TCP</option>
 		</select>
-		Network:
+		<p class="label">Network:</p>
 		<select id="filter-network" onchange="updateLayout()">
 		  <option value="">All</option>
 		  <option value="private">Local</option>
 		  <option value="public">Public</option>
 		</select>
 		
-		
-	</div>
-	<div id="sidebar"> 
-		<div class="sidebar-menu">
-			<!-- all your sidebar/navigational items go here -->
 		</div>
 	</div>
+	<div id="sidebar"> </div>
 	
     <div id="network-layout"></div>
-	
+  </div>
   </body>
 
   <!--

@@ -91,7 +91,7 @@ function createGraph(elementId){
 	.size([width, height])
 	.linkDistance(linkDistance)
 	.linkStrength(linkStrength)
-	.gravity(.01)
+	.gravity(.10)
 	.charge(-300)
 	.on('tick', tick)
 }

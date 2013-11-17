@@ -1,6 +1,13 @@
 var longitudinalCounter = 0;
 var latitudinalCounter = 0;
-function proccessData(map, timestamp){
+function proccessData(map){
+	
+	if(typeof map == "undefined" || map == null){
+		console.log("NO DATA");
+		return;
+	}
+	
+	var timestamp = map.time;
 	
 	function proccess(type, maping){
 		for (var key in maping) {	
@@ -45,15 +52,7 @@ function proccessData(map, timestamp){
 			}	
 		}
 	}
-
-	console.log("Proccess Data: "+ timestamp);
 	
-	if(map == undefined){
-		console.log("NO DATA");
-		timeSliderHandle.classed("no-data", true);
-		return;
-	}
-
 	proccess("device", map.devices);
 	proccess("flow", map.flows);
 	proccess("node", map.nodes);
@@ -61,6 +60,5 @@ function proccessData(map, timestamp){
 
 	updateLayout();
 	
-	console.log(graph);
-	timeSliderHandle.classed("no-data", false);
+	//console.log(graph);
 }

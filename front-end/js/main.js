@@ -1,29 +1,88 @@
-
 var layoutType;
 var showingAdvanced = false;
+var pageLoaded = false;
+var playSpeed = 1000;
 
+var data = new DataBuffer();
 
-
-itIsNow(minTime);
-updateTimeOffset();
-selectLayout("force");
-drawSlider(currentTime);
-
-window.onresize = function(){
-	var timeSliderValue = timeSlider.value();
-	drawSlider(timeSliderValue);
-		
+if(typeof io == "undefined"){
+	updatePage();
 }
 
-//monitor changes in slider
-setInterval(function(){
-	if(!sliderWasUpdated) return;
+
+function updatePage(){
+	if(!pageLoaded){
+		d3.select("#loader").style("display", "none");
+		d3.select("#app").style("display", "block");
+
+
+		window.onresize = function(){
+			var timeSliderValue = timeSlider.value();
+			drawSlider(timeSliderValue);
+				
+		}
+
+		//monitor changes in slider
+		setInterval(function(){
+			if(!sliderWasUpdated) return;
+			
+			data.get(currentTime);
+
+			sliderWasUpdated = false;
+		},1000);	
 	
-	proccessData(data[currentTime], currentTime);
+		itIsNow(minTime);
+		updateTimeOffset();
+		selectLayout("force");
+	
+		pageLoaded = true;
+	}
+	
+	drawSlider(currentTime);
+}
 
-	sliderWasUpdated = false;
-},1000);
 
+function togglePlay(){
+
+	var waitForData = false;
+	controls.classed("playing",simulation == null);
+	if(simulation == null){
+		simulation = setInterval(function(){
+		
+			if(!waitForData && currentTime <= maxTime ){
+				data.get(currentTime);
+				timeSliderHandle.classed("load-data", true );
+				waitForData = true;
+			}
+			
+			if(waitForData){
+
+				if(!data.exists(currentTime)|| data.loaded(currentTime)){
+					waitForData = false;
+					timeSliderHandle.classed("load-data", false );
+					itIsNow(currentTime + timeStep);
+				}else{
+					console.log("waiting");
+				}
+			}
+
+		},playSpeed);
+	}
+	else{
+		clearInterval(simulation);
+		simulation = null;
+	}
+}
+
+function updatePlaySpeed(){
+	var control =  d3.select("#play-speed").node();
+	playSpeed = control.options[control.selectedIndex].value;
+	
+	if(simulation != null){
+		togglePlay();
+		togglePlay();
+	}
+}
 
 function updateLayout(){
 	if(layoutType == "map")
