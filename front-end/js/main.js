@@ -9,6 +9,27 @@ if(typeof io == "undefined"){
 	updatePage();
 }
 
+/*
+var ips = [];
+var cnt = 0;
+d3.select("#app").html("");
+for(d in sample_data){
+	var nodes = sample_data[d].nodes;
+	for(n in nodes){
+		var node = nodes[n];
+		if(node.network =="public" && typeof ips[node.ip] == "undefined"){
+			ips[node.ip] = {};
+			//d3.select("#app").append("span").html("'"+node.ip+"', ");
+			cnt++;
+		}
+	}
+}
+console.log(cnt);
+
+console.log(ips);
+console.log(ips.length);
+//d3.select("#app").html(out);
+*/
 
 function updatePage(){
 	if(!pageLoaded){
@@ -34,13 +55,15 @@ function updatePage(){
 		itIsNow(minTime);
 		updateTimeOffset();
 		selectLayout("force");
+		//selectLayout("map");
 	
 		pageLoaded = true;
 	}
 	
 	drawSlider(currentTime);
+	
+	timeSliderHandle.classed("no-data", data.loaded(currentTime) && !data.hasData(currentTime) );	
 }
-
 
 function togglePlay(){
 
@@ -49,23 +72,21 @@ function togglePlay(){
 	if(simulation == null){
 		simulation = setInterval(function(){
 		
-			if(!waitForData && currentTime <= maxTime ){
-				data.get(currentTime);
-				timeSliderHandle.classed("load-data", true );
-				waitForData = true;
-			}
 			
 			if(waitForData){
-
-				if(!data.exists(currentTime)|| data.loaded(currentTime)){
+				if(data.loaded(currentTime)){
 					waitForData = false;
 					timeSliderHandle.classed("load-data", false );
 					itIsNow(currentTime + timeStep);
 				}else{
 					console.log("waiting");
 				}
+			}			
+			if(!waitForData && currentTime <= maxTime ){
+				data.get(currentTime);
+				timeSliderHandle.classed("load-data", !data.loaded(currentTime) );
+				waitForData = true;
 			}
-
 		},playSpeed);
 	}
 	else{
@@ -85,8 +106,9 @@ function updatePlaySpeed(){
 }
 
 function updateLayout(){
+	console.log(layoutType);
 	if(layoutType == "map")
-		updateMap(graph);
+		updateMap();
 
 	else if(layoutType == "force")
 		updateGraph();
@@ -98,14 +120,15 @@ function selectLayout(type){
 		type = control.options[control.selectedIndex].value;
 	}
 	
+	layoutType = type;
+	
 	if(type == "map")
 		createMap('#network-layout');
 		
-	else if(type == "force")
+	else if(type == "force"){
 		createGraph('#network-layout')
-
-	layoutType = type;
-	updateLayout();
+		updateGraph();
+	}
 }
 
 function toggleAdvanced(){

@@ -1,10 +1,30 @@
 html, body, #map, #network-layout {
   width: 100%;
   height: 100%;
+  
   margin: 0;
   padding: 0;
 }
 
+
+ #map{
+  width: 100%;
+  height: 1000px;
+  margin: 0;
+  padding: 0;
+}
+
+#map-overlay{
+}
+
+#map-overlay g.node{
+position: absolute;
+  width: 60px;
+  height: 60px;
+  padding-right: 100px;
+  font: 10px sans-serif;
+}
+/*
 .stations, .stations svg {
   position: absolute;
 }
@@ -15,6 +35,7 @@ html, body, #map, #network-layout {
  position: absolute;
 }
 
+
 .stations svg {
   width: 60px;
   height: 20px;
@@ -22,3 +43,4 @@ html, body, #map, #network-layout {
   font: 10px sans-serif;
 }
 
+*/

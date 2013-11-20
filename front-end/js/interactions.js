@@ -69,6 +69,18 @@
 					txt += "<br>";
 				}
 			}
+			else if(key == "geo"){
+				txt +="<ul>";
+				for(g in value){
+					if(g == "_id" || g == "ip" || g == "hostname") continue;
+					txt += "<li>";
+					txt += g + ": ";
+					txt += value[g];
+					txt += "<br>\n";
+					txt += "</li>";
+				}
+				txt +="</ul>";
+			}
 			else {
 				txt += value;
 			}
@@ -87,14 +99,10 @@
 		sidebar.html(txt).classed("old-data", markAsOld);
 		
 		// Do lookup of IP Location for public IPs
-		if(data.type=="node" && data.network == "public"){
+		if(data.type=="node" && data.network == "public" && typeof data.geo == "undefined"){
 			d3.json("http://ipinfo.io/"+data.data.ip+"/json", function(json) {
-				var addTxt = "";
-				for (var k in json) {
-					addTxt +=  "<strong>"+ k + "</strong> ";
-					addTxt +=  json[k]+ " <br>\n";
-				}
-				d3.select("#additional-info").html(addTxt);
+				data.geo = json;
+				updateSidebar();
 			});
 		}
 		
@@ -123,6 +131,7 @@
 	
 	if(data.type == "node"){
 		d3.select("#node-"+data.id).classed("selected", true);
+		console.log(d3.select("#node-"+data.id));
 	}
 	else if(data.type == "edge"){
 		d3.select("#edge-"+data.id)
@@ -226,4 +235,99 @@
 	return 1;
   }
   
+  function createPath(sourceX, sourceY, sourceXPadding, sourceYPadding,
+					targetX, targetY, targetXPadding, targetYPadding){
+	var deltaX = targetX - sourceX,
+        deltaY = targetY - sourceY,
+        dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+		normX = deltaX / dist,
+        normY = deltaY / dist,
+		spacingX = (Math.abs(deltaX) < Math.abs(deltaY))?((deltaY > 0)? 10 : -10):0,
+		spacingY = (Math.abs(deltaX) > Math.abs(deltaY))?((deltaX > 0)? -10 : 10):0,
+		srcX = sourceX + (sourceXPadding * normX)+spacingX,
+        srcY = sourceY + (sourceYPadding * normY)+spacingY,
+        tgtX = targetX - (targetXPadding * normX)+spacingX,
+        tgtY = targetY - (targetYPadding * normY)+spacingY;
+		dx = targetX - sourceX,
+		dy = targetY - sourceY,
+		dr = Math.sqrt(dx * dx + dy * dy) *3;
+	return "M" + srcX + "," + srcY + "A" + dr + "," + dr + " 0 0,1 " + tgtX + "," + tgtY;
+  }
   
+  function appendMarkers(svg){
+	svg.append("defs").append("marker")
+    .attr("id", "end-arrow")
+    .attr("refX", 6) 
+	.attr("viewBox", "0 -5 10 10")
+    .attr("markerWidth", 3)
+    .attr("markerHeight", 3)
+	.attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,-5L10,0L0,5 Z"); //this is actual shape for arrowhead
+ 
+ svg.append("defs").append("marker")
+    .attr("id", "start-arrow")
+    .attr("refX", 4) 
+	.attr("viewBox", "0 -5 10 10")
+    .attr("markerWidth", 3)
+    .attr("markerHeight", 3)
+	.attr("orient", "auto")
+    .append("path")
+    .attr("d", "M10,-5L10,0L10,5 Z"); //this is actual shape for arrowhead
+	
+ svg.append("defs").append("marker")
+    .attr("id", "end-arrow-selected")
+	.classed("selected", true)
+    .attr("refX", 6) 
+	.attr("viewBox", "0 -5 10 10")
+    .attr("markerWidth", 3)
+    .attr("markerHeight", 3)
+	.attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,-5L10,0L0,5 Z"); //this is actual shape for arrowhead
+ 
+ svg.append("defs").append("marker")
+    .attr("id", "start-arrow-selected")
+	.classed("selected", true)
+    .attr("refX", 4) 
+	.attr("viewBox", "0 -5 10 10")
+    .attr("markerWidth", 3)
+    .attr("markerHeight", 3)
+	.attr("orient", "auto")
+    .append("path")
+    .attr("d", "M10,-5L10,0L10,5 Z"); //this is actual shape for arrowhead
+ 
+ }
+ 
+ function designEdges(edges){
+	// path (link) group
+	  edges = edges.data(graph.edge.list, function(d) { return d.id; });
+
+	  // update existing links
+	  edges
+	  .style("opacity", calculateElementOpacity)
+	  .style("stroke-width", calculateWidth)
+	  .style("stroke-dasharray", calculateDashes)
+	  .classed("old-data", markAsOld)
+	  .classed("filtered", invertFilter(elementFilter));
+	  
+	   
+	  // add new links
+	  edges.enter().append('svg:path')
+		.attr('class', 'edge')
+		.attr("id", function(d) { return "edge-" + d.id; })
+		.style('marker-end', function(d) { return 'url(#end-arrow)'; })
+		.style("stroke-width", calculateWidth)
+		.style("stroke-dasharray", calculateDashes)
+		.on("mouseover", graphElementHover)
+		.on("mouseout", graphElementHoverOff)
+		.on("click", graphElementSelected)
+		.classed("filtered", invertFilter(elementFilter));
+		
+
+	  // remove old links
+	  edges.exit().remove();
+	  
+	  return edges;
+ }
+ 

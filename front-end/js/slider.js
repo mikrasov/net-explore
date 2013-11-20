@@ -25,13 +25,12 @@ function drawSlider(timeSliderValue){
 						currentTime = value;
 						sliderWasUpdated = true;
 						d3.select("#slider-time-now").html(humanTime(value));
-						timeSliderHandle.classed("no-data", !data.exists(value) );	
+						
 					})
 	timeSliderElement.selectAll("svg").remove();
 	timeSliderElement.selectAll("a").remove();
 	timeSliderElement.call(timeSlider);
 	timeSliderHandle = d3.select(".d3-slider-handle");
-	timeSliderHandle.classed("no-data", !data.exists(currentTime) );	
 }
 
 function updateTimeOffset(){

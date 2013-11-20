@@ -1,10 +1,10 @@
-#network-layout svg{	
+#graph svg{	
 	background-color: #FFF;
 	position:absolute;
 	height:100%;
 	width: 100%;
-	top:0px //Adjust this value
-	margin-left:0px; //Adjust this value
+	top:0px 
+	margin-left:0px; 
 	min-height: 2000px;
 }
 
@@ -16,37 +16,20 @@
 }
 
 
-.node rect{
+.node rect, .node circle{
   stroke-width: 1.5px;
   cursor: pointer;
   fill: #FFF;
   stroke: #000;
 }
 
-.node circle{
-  stroke-width: 1.5px;
-  cursor: pointer;
-  fill: #FFF;
-  stroke: #000;
-}
-
-marker path{
-  fill: #000;
-  stroke: #000;
-}
-
-text {
-  font: 12px sans-serif;
-  pointer-events: none;
-}
-
-.node .private{
+.node.private rect, .node.private circle{
 	fill: #FFCC66;
 }
-.node .public{
+.node.public rect, .node.public circle{
 	fill: #0099CC;
 }
-.node .localhost{
+.node.system rect, .node.system circle{
 	fill: #CCFF99;
 }
 
@@ -61,11 +44,17 @@ path.selected, .selected rect, .selected circle, .edge .selected{
 }
 
 marker path{
+  fill: #000;
   stroke: none;
 }
 
 marker.selected path{
   fill: #F00;
+}
+
+text {
+  font: 12px sans-serif;
+  pointer-events: none;
 }
 
 path.old-data, .old-data rect{

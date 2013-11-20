@@ -27,22 +27,25 @@ MongoClient.connect('mongodb://54.243.234.208/test', function(err, db) {
 function updateStats(db, socket){
 	var collection = db.collection('time_slices');
 
-    // Locate all the entries using find
-    collection.find({},{time:1}).sort({time: 1}).toArray(function(err, results) {
-		history = [];
-		for(r in results)
-			history.push(results[r].time);
-		
-		console.log(history);
-		socket.emit('history', history);
+    // find min time
+    collection.find({},{time:1}).sort({time: 1}).limit(1).toArray(function(err, resultMin) {
+
+		var from = resultMin[0].time;
+		// find max time
+		collection.find({},{time:1}).sort({time: -1}).limit(1).toArray(function(err, resultMax) {
+			var to = resultMax[0].time;
+			
+			console.log("History ["+from + ','+to+"]");
+			socket.emit('history', {'from':from, 'to':to});
+		});   
     });      
 }
 	
 function findTimeSlice(db, socket, from, to){
 	var collection = db.collection('time_slices');
 
-	collection.find({time: { '$gt' : from, '$lt' : to }}).toArray(function(err, results) {
-       socket.emit('1sec', results);
+	collection.find({time: { '$gte' : from, '$lte' : to }}).toArray(function(err, results) {
+       socket.emit('1sec', {'from':from, 'to':to, 'data':results});
     });  
 }
 

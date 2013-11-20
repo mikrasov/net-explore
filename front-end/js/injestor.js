@@ -1,5 +1,4 @@
-var longitudinalCounter = 0;
-var latitudinalCounter = 0;
+
 function proccessData(map){
 	
 	if(typeof map == "undefined" || map == null){
@@ -30,10 +29,39 @@ function proccessData(map){
 				entry.incoming	= entry.incoming || [];
 				entry.outgoing	= entry.outgoing || [];
 				
-				if(data.lat == undefined || data.lng == undefined){
-					entry.lat = 85; //-(latitudinalCounter++/10);
-					entry.lng = longitudinalCounter;
-					longitudinalCounter += 1;
+				if(typeof data.geo != "undefined" && typeof data.geo.loc != "undefined"){
+					var gps = data.geo.loc.split(",");
+					entry.lat = gps[0];
+					entry.lng = gps[1];
+					entry.gpsSet = true;
+				}
+				
+				
+				
+				if(typeof sample_gps[data.ip] != "undefined" && typeof sample_gps[data.ip].loc  != "undefined"){
+					console.log("loading from GPS cache");
+					console.log( sample_gps[data.ip] );
+					data.geo= sample_gps[data.ip];
+					
+					var gps = data.geo.loc.split(",");
+					entry.lat = gps[0];
+					entry.lng = gps[1];
+					entry.gpsSet = true;
+				}
+				else{
+				
+					//for now position local nodes around macha
+
+					
+					if(data.network == "private"){
+						entry.lat = -16.424808 + (Math.random() *0.1);
+						entry.lng = 26.77557 + (Math.random() *0.1);
+					}
+					else{
+						entry.lat = -85 + (Math.random() *5);
+						entry.lng = -180 + (Math.random() *360);
+					}
+					entry.gpsSet = false;
 				}
 		
 				entry.network = data.network;		

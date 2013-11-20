@@ -18,33 +18,42 @@ function DataBuffer() {
 			var entry = sample_data[key];
 			if(minTime == 0) 
 				minTime = parseInt(entry.time);
-			maxTime = parseInt(entry.time);
+			
+			maxTime= parseInt(entry.time);
 			
 			this.buffer["_"+entry.time] = entry;
 		}
 		
-		console.log(this.buffer);
+		//Set all other times to loaded but nodata
+		for (var time=minTime;time<=maxTime;time+=timeStep){
+			if( typeof this.buffer["_"+time] == "undefined")
+				this.buffer["_"+time] = null;
+		}
 		
 	}
 	else{
 		
 		this.socket = io.connect('http://localhost:8080');
 		
-		this.socket.on('history', function (results) {
-			for(r in results){
-				var time = results[r];
-				this.buffer["_"+time] = null;
-			}
+		this.socket.on('history', function (response) {
 			
-			minTime = results[0];
-			maxTime = results[results.length-1];
+			minTime = response.from;
+			maxTime = response.to;
 			
+			console.log(response);
+		
 			updatePage();	
 		}.bind(this));
 		
-		this.socket.on('1sec', function (results) {
+		this.socket.on('1sec', function (response) {
 			
-			//console.log(results);
+			var results = response.data;
+			
+			for (var time=response.from;time<=response.to;time+=timeStep){
+				this.buffer["_"+time] = null;
+			}
+			
+			console.log(response);
 			for(key in results){
 
 				var r = results[key];
@@ -69,18 +78,18 @@ function DataBuffer() {
 	}
 }
 
-DataBuffer.prototype.exists = function(time){
-	return typeof this.buffer["_"+time] != "undefined";
+DataBuffer.prototype.hasData = function(time){
+	return this.buffer["_"+time] != null;
 }
 
 DataBuffer.prototype.loaded = function(time){
-	return this.buffer["_"+time] != null;
+	return typeof this.buffer["_"+time] != "undefined";
 }
 
 
 DataBuffer.prototype.nextValidTime = function(time){
 	var cTime = time;
-	while(cTime < maxTime && !this.exists(cTime) ){
+	while(cTime < maxTime && !this.hasData(cTime) ){
 		cTime += timeStep;
 	}
 	
@@ -91,13 +100,12 @@ DataBuffer.prototype.nextValidTime = function(time){
 DataBuffer.prototype.get = function(time){
 
 	function get(type, from, to){
-		console.log('Request ['+type+'] ('+from+','+to+')');
+		console.log('Request {'+type+'} ['+from+','+to+']');
 		socket.emit('get', { "from": from, "to": to });
 	}
 	
-	//console.log('Getting data at '+time+' exists: '+this.exists(time));
-	
-	
+	console.log('Getting data at '+time+' hasData: '+this.hasData(time)+' dataLoaded:'+this.loaded(time));
+
 	if(playSpeed<1000){
 		this.bufferSize = 50 + (10*Math.ceil(1000/playSpeed));
 		//console.log(this.bufferSize);
@@ -105,29 +113,29 @@ DataBuffer.prototype.get = function(time){
 
 	
 	if(typeof io == "undefined"){
-		if( !this.exists(time)) return;
+		if( !this.hasData(time)) return;
 		
 		proccessData( this.buffer["_"+time]);
 	}
 	else {
-		var offset = (timeStep * 1);
 		var buffer   = (timeStep * this.bufferSize);
 		var limit = this.nextValidTime(time + (timeStep * Math.ceil((this.bufferSize/10) )));
 		var socket = this.socket;
 	
-		if( this.exists(time)){
-			if( this.loaded(time) ){
-				proccessData( this.buffer["_"+time]);
-			}
-			else{
-				get("NOW", time-offset, time+offset);
-				get("NEXT", time+offset, time+buffer);
-			}
+
+		if( this.hasData(time) ){
+			proccessData( this.buffer["_"+time]);
+		}
+		else if(!this.loaded(time)){
+			get("NOW", time, time);
+			get("NEXT", time+timeStep, time+buffer);
 		}
 		
+		
+		//Buffer next data
 		if( !this.preLoadSent && !this.loaded(limit)){
 
-			get("BUFFER", limit-offset,  limit + buffer);
+			get("BUFFER", limit,  limit + buffer);
 			this.preLoadSent = true;
 		}
 		
