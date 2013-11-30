@@ -37,10 +37,10 @@ function DataBuffer() {
 		
 		this.socket.on('history', function (response) {
 			
-			minTime = response.from;
-			maxTime = response.to;
+			minTime = parseInt(response.from);
+			maxTime = parseInt(response.to);
 			
-			console.log(response);
+			//console.log(response);
 		
 			updatePage();	
 		}.bind(this));
@@ -49,14 +49,18 @@ function DataBuffer() {
 			
 			var results = response.data;
 			
-			for (var time=response.from;time<=response.to;time+=timeStep){
+			for (var time=parseInt(response.from);time<=parseInt(response.to);time+=timeStep){
 				this.buffer["_"+time] = null;
 			}
 			
+			console.log(this.buffer);
 			console.log(response);
 			for(key in results){
 
 				var r = results[key];
+				console.log(r);
+				r.time = parseInt(r.time);
+				console.log(r);
 				this.buffer["_"+r.time] = r;
 
 				if(r.time < minTime) minTime = r.time;
@@ -69,6 +73,7 @@ function DataBuffer() {
 				
 				this.preLoadSent = false;
 			}
+			console.log(this.buffer);
 			
 			
 			updatePage();
@@ -89,10 +94,6 @@ DataBuffer.prototype.loaded = function(time){
 
 DataBuffer.prototype.nextValidTime = function(time){
 	var cTime = time;
-	while(cTime < maxTime && !this.hasData(cTime) ){
-		cTime += timeStep;
-	}
-	
 	return cTime;
 }
 
@@ -100,18 +101,17 @@ DataBuffer.prototype.nextValidTime = function(time){
 DataBuffer.prototype.get = function(time){
 
 	function get(type, from, to){
-		console.log('Request {'+type+'} ['+from+','+to+']');
+		console.log('Request {'+type+'} ['+from+','+to+']');	
 		socket.emit('get', { "from": from, "to": to });
 	}
 	
 	console.log('Getting data at '+time+' hasData: '+this.hasData(time)+' dataLoaded:'+this.loaded(time));
-
+	
 	if(playSpeed<1000){
 		this.bufferSize = 50 + (10*Math.ceil(1000/playSpeed));
 		//console.log(this.bufferSize);
 	}	
 
-	
 	if(typeof io == "undefined"){
 		if( !this.hasData(time)) return;
 		
@@ -122,19 +122,16 @@ DataBuffer.prototype.get = function(time){
 		var limit = this.nextValidTime(time + (timeStep * Math.ceil((this.bufferSize/10) )));
 		var socket = this.socket;
 	
-
 		if( this.hasData(time) ){
 			proccessData( this.buffer["_"+time]);
 		}
 		else if(!this.loaded(time)){
 			get("NOW", time, time);
 			get("NEXT", time+timeStep, time+buffer);
-		}
-		
+		}	
 		
 		//Buffer next data
 		if( !this.preLoadSent && !this.loaded(limit)){
-
 			get("BUFFER", limit,  limit + buffer);
 			this.preLoadSent = true;
 		}

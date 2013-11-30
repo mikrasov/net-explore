@@ -37,6 +37,7 @@ function updateTimeOffset(){
 	var control = d3.select("#time-offset").node();
 	timeOffset = control.options[control.selectedIndex].value;
 	d3.select("#slider-time-start").html(humanTime(minTime));
+	d3.select("#slider-time-now").html(humanTime(currentTime));
 	d3.select("#slider-time-end").html(humanTime(maxTime));
 	updateSidebar();
 }

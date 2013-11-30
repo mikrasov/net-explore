@@ -81,22 +81,24 @@ function updateMap(){
 	  .classed("old-data", markAsOld)
 	  .classed("filtered", invertFilter(elementFilter))
 	
-	nodes.enter().append("svg:g")
+	node = nodes.enter().append("svg:g")
 	 .attr('class', function(d){return d.network} )
 	 .attr("id", function(d) { return "node-" + d.id; })
 	 .on("mouseover", graphElementHover)
 	 .on("mouseout", graphElementHoverOff)
 	 .on("click", graphElementSelected)	
 	 .classed("filtered", invertFilter(elementFilter))
+	 .classed("no-gps", function(data){return !data.gpsSet;})
+	 .classed("end-point", decorateNode)
 	 .classed('node', true)
 	  
-	nodes.append("svg:circle")
+	node.append("svg:circle")
 	 .attr("r", radius)
 	 .attr("cx", padding)
 	 .attr("cy", padding)
 
 	// Add a label.
-	nodes.append("svg:text")
+	node.append("svg:text")
 	 .attr("x", padding + 7)
 	 .attr("y", padding)
 	 .attr("dy", ".37em")

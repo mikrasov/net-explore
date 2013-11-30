@@ -4,7 +4,8 @@
   var filters = { 
 	duration: d3.select("#filter-duration").node(),
 	protocol: d3.select("#filter-protocol").node(),
-	network: d3.select("#filter-network").node()
+	network: d3.select("#filter-network").node(),
+	distance: d3.select("#filter-distance").node()
   };
 	
   document.onkeyup = function(evt) {
@@ -40,7 +41,9 @@
 	updateSidebar();
   }
   
-   
+  function decorateNode(data){
+	return (typeof data.data.decoration != "undefined" && data.data.decoration == "end-point");
+  }
   function updateSidebar(){
 	var txt = "";
 	var data = sidebar.datum();
@@ -52,20 +55,59 @@
 			
 			if(key == "flows"){
 				var fls = (new String(value)).split(",");
+				txt +="<ul>";
 				for (var f in fls){;
-					txt += "<a href='#' onClick='selectElement(\"flow\",\""+fls[f]+"\")'>"+fls[f]+"</a>, ";
+					var flow = graph.flow.dict[fls[f]].data;
+					console.log(flow);
+					txt += "<li><a href='#' onClick='selectElement(\"flow\",\""+fls[f]+"\")'>";
+					txt+= fls[f];
+					if(typeof flow.sourcePort  != "undefined" && typeof flow.destPort != "undefined")
+						txt += " ["+flow.sourcePort+" -> "+flow.destPort+"]";
+						
+					txt += "</a>";
+					txt +="<ul>";
+					for(a in flow.srcApp){
+						var app =flow.srcApp[a];
+						
+						txt +="<li>";
+						txt += "<strong>"+app.port+" - ";
+						if(typeof app.type != "undefined")
+							txt += app.type;
+						txt += ":</strong> ";
+						txt += app.description;
+						txt +="</li>";
+						
+					}
+					txt +="</ul>";
+					txt += "</li>";
 				}
+				txt +="</ul>";
 			}
 			else if(key == "from" || key == "to"){
-				txt += "<a href='#' onClick='selectElement(\"node\",\""+value+"\")'>"+value+"</a>";
+				if(typeof graph.node.dict[value] != "undefined")
+					txt += "<a href='#' onClick='selectElement(\"node\",\""+value+"\")'>"+value+"</a>";
+				else 
+					txt += value;
 			}
 			else if(key == "parts"){
 				txt += "<br/>";
 				for (var p in value){
 					var part = value[p];
-					txt += "<a href='#' onClick='selectElement(\"node\",\""+part.from+"\")'>"+part.from+"</a>";
-					txt += " <a href='#' onClick='selectElement(\"edge\",\""+part.from+"-"+part.to+"\")'>&#8594;</a> ";
-					txt += "<a href='#' onClick='selectElement(\"node\",\""+part.to+"\")'>"+part.to+"</a>";
+					
+					if(typeof graph.node.dict[part.from] != "undefined")
+						txt += "<a href='#' onClick='selectElement(\"node\",\""+part.from+"\")'>"+part.from+"</a>";
+					else
+						txt += part.from;
+					
+					if(typeof graph.node.dict[part.from] != "undefined" && typeof graph.node.dict[part.to] != "undefined")
+						txt += " <a href='#' onClick='selectElement(\"edge\",\""+part.from+"-"+part.to+"\")'>&#8594;</a> ";
+					else
+						txt += "&#8594;";
+					
+					if(typeof graph.node.dict[part.to] != "undefined")
+						txt += "<a href='#' onClick='selectElement(\"node\",\""+part.to+"\")'>"+part.to+"</a>";
+					else
+						txt += part.to;
 					txt += "<br>";
 				}
 			}
@@ -75,9 +117,59 @@
 					if(g == "_id" || g == "ip" || g == "hostname") continue;
 					txt += "<li>";
 					txt += g + ": ";
-					txt += value[g];
+					
+					if(g == "loc"){
+						var loc = (new String(value[g])).split(",");
+						txt += '<a href="#" onClick="goTo('+loc[0]+","+loc[1]+')" >';
+						txt += value[g];
+						txt += "</a>";
+					}
+					else
+						txt += value[g];
+					
+					
 					txt += "<br>\n";
 					txt += "</li>";
+					
+					
+				}
+				txt +="</ul>";
+			}
+			else if(key == "utilization"){
+				txt +="<ul>";
+				for(g in value){
+					txt += "<li>";
+					txt += g + ": ";
+					txt += value[g];
+					txt += " b/s<br>\n";
+					txt += "</li>";
+				}
+				txt +="</ul>";
+			}
+			else if(key == "delay"){
+				txt += value+" ms";
+			}
+			else if(key == "distance"){
+				txt += value+" km";
+			}
+			else if(key == "totalSize"){
+				txt += value+" bytes";
+			}
+			else if(key == "totalAverage"){
+				txt += value+" bytes";
+			}
+			else if(key == "currentUtilization"){
+				txt += value+" b/s";
+			}
+			else if(key == "srcApp" || key == "dstApp" ){
+				txt +="<ul>";
+				for(i in value){
+					var app = value[i];
+					txt +="<li>";
+					if(typeof app.type != "undefined")
+						txt += "<strong>"+app.type+":</strong> ";
+					txt += app.description;
+					txt +="</li>";
 				}
 				txt +="</ul>";
 			}
@@ -105,8 +197,6 @@
 				updateSidebar();
 			});
 		}
-		
-		
 	}
 	else{
 		sidebar.html("").classed("old-data", false);
@@ -131,7 +221,6 @@
 	
 	if(data.type == "node"){
 		d3.select("#node-"+data.id).classed("selected", true);
-		console.log(d3.select("#node-"+data.id));
 	}
 	else if(data.type == "edge"){
 		d3.select("#edge-"+data.id)
@@ -141,11 +230,14 @@
 		
 		for (var key in data.data.parts) {
 			var value = data.data.parts[key];
-			d3.select("#node-"+value.from).classed("selected", true);
-			d3.select("#node-"+value.to).classed("selected", true);
-			d3.select("#edge-"+graph.node.dict[value.from].outgoing[value.to].id)
-			  .style('marker-end', function(d) { return 'url(#end-arrow-selected)'; })
-			  .classed("selected", true);	
+			if(typeof graph.node.dict[value.from] != "undefined")
+				d3.select("#node-"+value.from).classed("selected", true);
+			if(typeof graph.node.dict[value.to] != "undefined")
+				d3.select("#node-"+value.to).classed("selected", true);
+			if(typeof graph.node.dict[value.from] != "undefined" && typeof graph.node.dict[value.to] != "undefined")
+				d3.select("#edge-"+graph.node.dict[value.from].outgoing[value.to].id)
+				  .style('marker-end', function(d) { return 'url(#end-arrow-selected)'; })
+				  .classed("selected", true);	
 		}
 	}
 	
@@ -188,6 +280,7 @@
 	var duration = filters.duration.options[filters.duration.selectedIndex].value;
 	var protocol = filters.protocol.options[filters.protocol.selectedIndex].value;
 	var network = filters.network.options[filters.network.selectedIndex].value;
+	var distance = filters.distance.options[filters.distance.selectedIndex].value;
 	
 	//Check duration
 	if(duration != "" && currentTime - data.lastSeen >= duration){
@@ -217,6 +310,12 @@
 		if(data.type == "edge" && (data.source.network != network || data.target.network != network))
 			return false;
 	}
+
+	//Distance filter
+	if(distance != ""){
+		if(data.type == "edge" && data.data.distance > distance)
+			return false;
+	}
 	
 	return true;
   }
@@ -225,32 +324,37 @@
 	if(data.source.network == "public" || data.target.network == "public")
 		return 250;
 		
-	return 500;
+	return 400;
   }
   
   function linkStrength(data){
+	
 	if(data.source.network == "public" || data.target.network == "public")
 		return 0.1;
 		
-	return 1;
+	return 0.5;
   }
   
   function createPath(sourceX, sourceY, sourceXPadding, sourceYPadding,
 					targetX, targetY, targetXPadding, targetYPadding){
-	var deltaX = targetX - sourceX,
-        deltaY = targetY - sourceY,
-        dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-		normX = deltaX / dist,
-        normY = deltaY / dist,
-		spacingX = (Math.abs(deltaX) < Math.abs(deltaY))?((deltaY > 0)? 10 : -10):0,
-		spacingY = (Math.abs(deltaX) > Math.abs(deltaY))?((deltaX > 0)? -10 : 10):0,
-		srcX = sourceX + (sourceXPadding * normX)+spacingX,
-        srcY = sourceY + (sourceYPadding * normY)+spacingY,
-        tgtX = targetX - (targetXPadding * normX)+spacingX,
-        tgtY = targetY - (targetYPadding * normY)+spacingY;
-		dx = targetX - sourceX,
-		dy = targetY - sourceY,
-		dr = Math.sqrt(dx * dx + dy * dy) *3;
+	var deltaX = targetX - sourceX;
+    var deltaY = targetY - sourceY;
+    var dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+	var normX = deltaX / dist;
+    var normY = deltaY / dist;
+	if(dist == 0 ){
+		normX=0;
+		normY=0;
+	}
+	var spacingX = (Math.abs(deltaX) < Math.abs(deltaY))?((deltaY > 0)? 10 : -10):0;
+	var spacingY = (Math.abs(deltaX) > Math.abs(deltaY))?((deltaX > 0)? -10 : 10):0;
+	var srcX = sourceX + (sourceXPadding * normX)+spacingX;
+    var srcY = sourceY + (sourceYPadding * normY)+spacingY;
+    var tgtX = targetX - (targetXPadding * normX)+spacingX;
+    var tgtY = targetY - (targetYPadding * normY)+spacingY;
+	var dx = targetX - sourceX;
+	var dy = targetY - sourceY;
+	var dr = Math.sqrt(dx * dx + dy * dy) *3;
 	return "M" + srcX + "," + srcY + "A" + dr + "," + dr + " 0 0,1 " + tgtX + "," + tgtY;
   }
   
@@ -322,6 +426,7 @@
 		.on("mouseover", graphElementHover)
 		.on("mouseout", graphElementHoverOff)
 		.on("click", graphElementSelected)
+		.classed("no-gps", function(data){return !data.gpsSet;})
 		.classed("filtered", invertFilter(elementFilter));
 		
 
@@ -331,3 +436,9 @@
 	  return edges;
  }
  
+ function goTo(lat,lng){
+	if(layoutType == "map"){
+		map.setCenter(new google.maps.LatLng( lat,lng) );
+		map.setZoom(5);
+	}
+ }

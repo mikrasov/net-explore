@@ -1,6 +1,13 @@
 
 function proccessData(map){
 	
+	function calcDistance(lat1, lon1, lat2, lon2){
+		var R = 6371; // km
+		return Math.acos(Math.sin(lat1)*Math.sin(lat2) + 
+                  Math.cos(lat1)*Math.cos(lat2) *
+                  Math.cos(lon2-lon1)) * R;
+	}
+	
 	if(typeof map == "undefined" || map == null){
 		console.log("NO DATA");
 		return;
@@ -28,6 +35,8 @@ function proccessData(map){
 			if(type == "node"){
 				entry.incoming	= entry.incoming || [];
 				entry.outgoing	= entry.outgoing || [];
+
+				
 				
 				if(typeof data.geo != "undefined" && typeof data.geo.loc != "undefined"){
 					var gps = data.geo.loc.split(",");
@@ -36,11 +45,7 @@ function proccessData(map){
 					entry.gpsSet = true;
 				}
 				
-				
-				
 				if(typeof sample_gps[data.ip] != "undefined" && typeof sample_gps[data.ip].loc  != "undefined"){
-					console.log("loading from GPS cache");
-					console.log( sample_gps[data.ip] );
 					data.geo= sample_gps[data.ip];
 					
 					var gps = data.geo.loc.split(",");
@@ -48,20 +53,22 @@ function proccessData(map){
 					entry.lng = gps[1];
 					entry.gpsSet = true;
 				}
-				else{
+				else if(typeof entry.lat == "undefined") {
 				
 					//for now position local nodes around macha
 
 					
 					if(data.network == "private"){
-						entry.lat = -16.424808 + (Math.random() *0.1);
-						entry.lng = 26.77557 + (Math.random() *0.1);
+						entry.lat = -16.424808 + (Math.random() *0.01);
+						entry.lng = 26.77557 + (Math.random() *0.01);
+						entry.gpsSet = true;
 					}
 					else{
-						entry.lat = -85 + (Math.random() *5);
-						entry.lng = -180 + (Math.random() *360);
+						entry.lat = 0;
+						entry.lng = 0;
+						entry.gpsSet = false;
 					}
-					entry.gpsSet = false;
+					
 				}
 		
 				entry.network = data.network;		
@@ -69,15 +76,35 @@ function proccessData(map){
 			
 			//Add Connectedness to edges
 			if(type == "edge"){
-				var src = graph.node.dict[data.from]; //E
-				var dest = graph.node.dict[data.to];  //E
+				var src = graph.node.dict[data.from]; 
+				var dest = graph.node.dict[data.to];  
 				
 				entry.source	= src;
 				entry.target	= dest;
 
 				src.outgoing[dest.id] = entry;	
 				dest.incoming[src.id] = entry;	
+				
+				
+				//calculate distance
+				if(src.gpsSet && dest.gpsSet){
+				
+					data.distance = calcDistance(src.lat,src.lng, dest.lat, dest.lng);
+					entry.gpsSet = true;
+				}
+				else{
+					entry.gpsSet = false;
+				}
 			}	
+			
+			if(type == "flow"){
+				if(typeof sample_ports[data.sourcePort] != "undefined") {
+					data.srcApp = sample_ports[data.sourcePort];
+				}
+				if(typeof sample_ports[data.destPort ] != "undefined") {
+					data.dstApp = sample_ports[data.destPort ];
+				}
+			}
 		}
 	}
 	

@@ -15,8 +15,6 @@ MongoClient.connect('mongodb://54.243.234.208/test', function(err, db) {
 			output[result.ip] = result;
 		}
 		
-
-		
 		var outputFilename = 'geo.json';
 
 		fs.writeFile(outputFilename, JSON.stringify(output, null, 4), function(err) {
@@ -26,10 +24,6 @@ MongoClient.connect('mongodb://54.243.234.208/test', function(err, db) {
 			  console.log("JSON saved to "+outputFilename);
 			}
 		}); 
-		
-		
-	
-
     });   
 	
 

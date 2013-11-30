@@ -55,8 +55,9 @@ console.log("create graph");
 	.size([width, height])
 	.linkDistance(linkDistance)
 	.linkStrength(linkStrength)
-	.gravity(.10)
-	.charge(-300)
+	.friction(.35)
+	.gravity(.04)
+	.charge(-800)
 	.on('tick', tick)
 }
 
@@ -101,6 +102,7 @@ function updateGraph() {
 					.on("click", graphElementSelected)	
 					.classed('node', true)
 					.classed("filtered", invertFilter(elementFilter))
+					.classed("end-point", decorateNode)
 		
   nodeContent.append('svg:rect')
     .attr('rx', 5)

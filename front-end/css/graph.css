@@ -30,7 +30,7 @@
 	fill: #0099CC;
 }
 .node.system rect, .node.system circle{
-	fill: #CCFF99;
+	fill: #FF0033;
 }
 
 .node-label {
@@ -41,6 +41,16 @@
 path.selected, .selected rect, .selected circle, .edge .selected{
   stroke: #F00;
   color: #F00;
+  z-index:90;
+}
+
+.node.end-point rect, .node.end-point circle{
+	fill: #33CC33;
+	z-index:10;
+}
+
+.node.selected.end-point rect, .node.selected.end-point circle{
+	z-index:91;
 }
 
 marker path{
