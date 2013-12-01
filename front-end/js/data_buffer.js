@@ -3,14 +3,9 @@ var timeStep = 1;
 var currentTime = 0;
 
 function DataBuffer() {
-
-	this.server
 	this.bufferSize = 50;
 	this.buffer = [];
 	this.preLoadSent = false;
-	
-	
-
 }
 
 DataBuffer.prototype.setServer = function(server){
@@ -20,7 +15,6 @@ DataBuffer.prototype.setServer = function(server){
 	this.socket = io.connect(server);
   
 	this.socket.on('history', function (response) {
-		
 		minTime = parseInt(response.from);
 		maxTime = parseInt(response.to);
 		//console.log(response);
@@ -51,6 +45,8 @@ DataBuffer.prototype.setServer = function(server){
 		}
 		updatePage();
 	}.bind(this));
+	
+	TESTER.log();
 }
 
 DataBuffer.prototype.hasData = function(time){
@@ -67,6 +63,10 @@ DataBuffer.prototype.nextValidTime = function(time){
 	return cTime;
 }
 
+DataBuffer.prototype.log = function(item){
+	this.socket.emit('log', item);
+}
+
 DataBuffer.prototype.get = function(time){
 
 	function get(type, from, to){
@@ -80,28 +80,23 @@ DataBuffer.prototype.get = function(time){
 		//console.log(this.bufferSize);
 	}	
 
-	if(typeof io == "undefined"){
-		if( !this.hasData(time)) return;
-		
+	var buffer   = (timeStep * this.bufferSize);
+	var limit = this.nextValidTime(time + (timeStep * Math.ceil((this.bufferSize/10) )));
+	var socket = this.socket;
+
+	if( this.hasData(time) ){
 		proccessData( this.buffer["_"+time]);
+		TESTER.sliceLoaded();
 	}
-	else {
-		var buffer   = (timeStep * this.bufferSize);
-		var limit = this.nextValidTime(time + (timeStep * Math.ceil((this.bufferSize/10) )));
-		var socket = this.socket;
+	else if(!this.loaded(time)){
+		get("NOW", time, time);
+		get("NEXT", time+timeStep, time+buffer);
+	}	
 	
-		if( this.hasData(time) ){
-			proccessData( this.buffer["_"+time]);
-		}
-		else if(!this.loaded(time)){
-			get("NOW", time, time);
-			get("NEXT", time+timeStep, time+buffer);
-		}	
-		
-		//Buffer next data
-		if( !this.preLoadSent && !this.loaded(limit)){
-			get("BUFFER", limit,  limit + buffer);
-			this.preLoadSent = true;
-		}		
-	}
+	//Buffer next data
+	if( !this.preLoadSent && !this.loaded(limit)){
+		get("BUFFER", limit,  limit + buffer);
+		this.preLoadSent = true;
+	}		
+	
 };

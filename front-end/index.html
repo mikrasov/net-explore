@@ -10,13 +10,11 @@
 	
   </head>
   
-  <body onLoad="">
+  <body onLoad="applicationLoaded()">
   <div id="selector">
 	<ul>
-		<li><a href="#" onClick="data.setServer('http://localhost:8080/pcap')"> LocalHost - Macha </a></li>
-		<li><a href="#" onClick="data.setServer('http://localhost:8080/routes')"> LocalHost - Internet Routes </a></li>
-		<li><a href="#" onClick="data.setServer('http://mikrasov.com:8080/pcap')"> Amazon - Macha </a></li>
-		<li><a href="#" onClick="data.setServer('http://mikrasov.com:8080/routes')"> Amazon - Internet Routes </a></li>
+		<li><a href="#" onClick="data.setServer('/pcap')"> Macha </a></li>
+		<li><a href="#" onClick="data.setServer('/routes')"> Internet Routes </a></li>
 	</ul>
   </div>
   <div id="loader"></div>
@@ -138,9 +136,11 @@
 
   <script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=true"></script>
   <script src="socket.io/socket.io.js"></script>
+  
   <script type="text/javascript" src="lib/d3.v3.min.js"></script>
   <script type="text/javascript" src="lib/d3.slider.js"></script>
   <script type="text/javascript" src="lib/moment.min.js"></script>
+  <script type="text/javascript" src="js/testing.js"></script>
   <script type="text/javascript" src="js/sample_ports.js"></script>
   <script type="text/javascript" src="js/data_buffer.js"></script> 
   <script type="text/javascript" src="js/interactions.js"></script>

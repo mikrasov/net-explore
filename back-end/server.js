@@ -1,4 +1,4 @@
-serveClient("mongodb://localhost/test");
+serveClient("mongodb://localhost/netX_DB");
 
 function serveClient(server){
 
@@ -65,7 +65,6 @@ function serveClient(server){
 		
 		console.log("Server Started");
 	});
-		
 
 	function onConnect(collection, socket){
 		socket.join('client');
@@ -76,6 +75,25 @@ function serveClient(server){
 			console.log(request.from + " - " + request.to);
 			findTimeSlice(collection, socket, request.from, request.to);
 		});
+		socket.on('log', function (request) {
+			console.log("Log Saved");
+			console.log(request);
+			
+			var msg = "";
+			for(r in request){
+				if(r == "browser" || r == "metrics"){
+					for(b in request[r])
+						msg += request[r][b]+", ";
+				}
+				else{
+					msg += request[r]+", ";
+				}
+			}
+			msg += "\n";
+			
+			fs.appendFile('./log.csv', msg, function (err) {});
+		});
+		
 	}
 	
 	function updateStats(collection, socket){	 

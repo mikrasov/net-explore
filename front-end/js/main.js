@@ -3,10 +3,14 @@ var showingAdvanced = false;
 var pageLoaded = false;
 var playSpeed = 1000;
 var skipNoData = false;
-
+var waitForData = false;
 
 var data = new DataBuffer();
 
+function applicationLoaded(){
+d3.select("#loader").style("display", "none");
+d3.select("#selector").style("display", "block");
+	}
 function setSkipNoData( skip){
 	skipNoData = skip;
 }
@@ -15,11 +19,9 @@ function updatePage(){
 		d3.select("#loader").style("display", "none");
 		d3.select("#app").style("display", "block");
 
-
 		window.onresize = function(){
 			var timeSliderValue = timeSlider.value();
 			drawSlider(timeSliderValue);
-				
 		}
 
 		//monitor changes in slider
@@ -45,39 +47,41 @@ function updatePage(){
 }
 
 function togglePlay(){
-
-	var waitForData = false;
 	controls.classed("playing",simulation == null);
 	if(simulation == null){
-		simulation = setInterval(function(){
-		
-			while(skipNoData && data.loaded(currentTime) && !data.hasData(currentTime)){
-				timeSliderHandle.classed("no-data", false );
-				itIsNow(currentTime + timeStep);
-				waitForData = false;
-			}
-		
-			if(waitForData){
-				if(data.loaded(currentTime)){
-					waitForData = false;
-					timeSliderHandle.classed("load-data", false );
-					itIsNow(currentTime + timeStep);
-					timeSliderHandle.classed("no-data", !data.hasData(currentTime) );
-			
-				}else{
-					console.log("waiting");
-				}
-			}			
-			if(!waitForData && currentTime <= maxTime ){
-				data.get(currentTime);
-				timeSliderHandle.classed("load-data", !data.loaded(currentTime) );
-				waitForData = true;
-			}
-		},playSpeed);
+		TESTER.startTest();
+		simulation = setInterval(dataTick,playSpeed);
 	}
 	else{
+		TESTER.stopTest();
 		clearInterval(simulation);
 		simulation = null;
+	}
+}
+
+function dataTick(){
+	while(skipNoData && data.loaded(currentTime) && !data.hasData(currentTime)){
+		timeSliderHandle.classed("no-data", false );
+		itIsNow(currentTime + timeStep);
+		waitForData = false;
+	}
+
+	if(waitForData){
+		if(data.loaded(currentTime)){
+			timeSliderHandle.classed("load-data", false );
+			itIsNow(currentTime + timeStep);
+			timeSliderHandle.classed("no-data", !data.hasData(currentTime) );
+			waitForData = false;
+			TESTER.stopWaiting();
+		}else{
+			console.log("waiting");
+			TESTER.startWaiting();
+		}
+	}			
+	if(!waitForData && currentTime <= maxTime ){
+		data.get(currentTime);
+		timeSliderHandle.classed("load-data", !data.loaded(currentTime) );
+		waitForData = true;
 	}
 }
 
