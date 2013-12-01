@@ -1,86 +1,56 @@
-
 var minTime = 0, maxTime = 0;
 var timeStep = 1;
 var currentTime = 0;
 
 function DataBuffer() {
 
+	this.server
 	this.bufferSize = 50;
 	this.buffer = [];
 	this.preLoadSent = false;
-
 	
-	if(typeof io == "undefined"){
-		console.log("Defaulting to load from local file");
+	
+
+}
+
+DataBuffer.prototype.setServer = function(server){
+	d3.select("#selector").style("display", "none");
+	d3.select("#loader").style("display", "block");
+	
+	this.socket = io.connect(server);
+  
+	this.socket.on('history', function (response) {
 		
-		//LoadData from sample data
-		for (var key in sample_data) {	
-			var entry = sample_data[key];
-			if(minTime == 0) 
-				minTime = parseInt(entry.time);
-			
-			maxTime= parseInt(entry.time);
-			
-			this.buffer["_"+entry.time] = entry;
+		minTime = parseInt(response.from);
+		maxTime = parseInt(response.to);
+		//console.log(response);
+		updatePage();	
+	}.bind(this));
+	
+	this.socket.on('1sec', function (response) {
+		var results = response.data;
+		
+		for (var time=parseInt(response.from);time<=parseInt(response.to);time+=timeStep){
+			this.buffer["_"+time] = null;
 		}
 		
-		//Set all other times to loaded but nodata
-		for (var time=minTime;time<=maxTime;time+=timeStep){
-			if( typeof this.buffer["_"+time] == "undefined")
-				this.buffer["_"+time] = null;
+		for(key in results){
+			var r = results[key];
+			r.time = parseInt(r.time);
+			this.buffer["_"+r.time] = r;
+
+			if(r.time < minTime) minTime = r.time;
+			if(r.time > maxTime) maxTime = r.time;
+			
+			//process data if it is current point
+			if(r.time == currentTime){
+				proccessData(r);					
+			}
+			
+			this.preLoadSent = false;
 		}
-		
-	}
-	else{
-		
-		this.socket = io.connect('http://localhost:8080');
-		
-		this.socket.on('history', function (response) {
-			
-			minTime = parseInt(response.from);
-			maxTime = parseInt(response.to);
-			
-			//console.log(response);
-		
-			updatePage();	
-		}.bind(this));
-		
-		this.socket.on('1sec', function (response) {
-			
-			var results = response.data;
-			
-			for (var time=parseInt(response.from);time<=parseInt(response.to);time+=timeStep){
-				this.buffer["_"+time] = null;
-			}
-			
-			console.log(this.buffer);
-			console.log(response);
-			for(key in results){
-
-				var r = results[key];
-				console.log(r);
-				r.time = parseInt(r.time);
-				console.log(r);
-				this.buffer["_"+r.time] = r;
-
-				if(r.time < minTime) minTime = r.time;
-				if(r.time > maxTime) maxTime = r.time;
-				
-				//process data if it is current point
-				if(r.time == currentTime){
-					proccessData(r);					
-				}
-				
-				this.preLoadSent = false;
-			}
-			console.log(this.buffer);
-			
-			
-			updatePage();
-			
-			
-		}.bind(this));
-	}
+		updatePage();
+	}.bind(this));
 }
 
 DataBuffer.prototype.hasData = function(time){
@@ -97,7 +67,6 @@ DataBuffer.prototype.nextValidTime = function(time){
 	return cTime;
 }
 
-
 DataBuffer.prototype.get = function(time){
 
 	function get(type, from, to){
@@ -105,8 +74,7 @@ DataBuffer.prototype.get = function(time){
 		socket.emit('get', { "from": from, "to": to });
 	}
 	
-	console.log('Getting data at '+time+' hasData: '+this.hasData(time)+' dataLoaded:'+this.loaded(time));
-	
+	//console.log('Getting data at '+time+' hasData: '+this.hasData(time)+' dataLoaded:'+this.loaded(time));
 	if(playSpeed<1000){
 		this.bufferSize = 50 + (10*Math.ceil(1000/playSpeed));
 		//console.log(this.bufferSize);
@@ -134,8 +102,6 @@ DataBuffer.prototype.get = function(time){
 		if( !this.preLoadSent && !this.loaded(limit)){
 			get("BUFFER", limit,  limit + buffer);
 			this.preLoadSent = true;
-		}
-		
-		
+		}		
 	}
 };

@@ -7,10 +7,6 @@ var skipNoData = false;
 
 var data = new DataBuffer();
 
-if(typeof io == "undefined"){
-	updatePage();
-}
-
 function setSkipNoData( skip){
 	skipNoData = skip;
 }

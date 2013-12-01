@@ -35,9 +35,7 @@ function proccessData(map){
 			if(type == "node"){
 				entry.incoming	= entry.incoming || [];
 				entry.outgoing	= entry.outgoing || [];
-
-				
-				
+	
 				if(typeof data.geo != "undefined" && typeof data.geo.loc != "undefined"){
 					var gps = data.geo.loc.split(",");
 					entry.lat = gps[0];
@@ -45,19 +43,8 @@ function proccessData(map){
 					entry.gpsSet = true;
 				}
 				
-				if(typeof sample_gps[data.ip] != "undefined" && typeof sample_gps[data.ip].loc  != "undefined"){
-					data.geo= sample_gps[data.ip];
-					
-					var gps = data.geo.loc.split(",");
-					entry.lat = gps[0];
-					entry.lng = gps[1];
-					entry.gpsSet = true;
-				}
 				else if(typeof entry.lat == "undefined") {
-				
-					//for now position local nodes around macha
-
-					
+					//for now position local nodes around macha	
 					if(data.network == "private"){
 						entry.lat = -16.424808 + (Math.random() *0.01);
 						entry.lng = 26.77557 + (Math.random() *0.01);
@@ -67,8 +54,7 @@ function proccessData(map){
 						entry.lat = 0;
 						entry.lng = 0;
 						entry.gpsSet = false;
-					}
-					
+					}					
 				}
 		
 				entry.network = data.network;		
@@ -84,8 +70,7 @@ function proccessData(map){
 
 				src.outgoing[dest.id] = entry;	
 				dest.incoming[src.id] = entry;	
-				
-				
+		
 				//calculate distance
 				if(src.gpsSet && dest.gpsSet){
 				

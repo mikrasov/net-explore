@@ -58,7 +58,6 @@
 				txt +="<ul>";
 				for (var f in fls){;
 					var flow = graph.flow.dict[fls[f]].data;
-					console.log(flow);
 					txt += "<li><a href='#' onClick='selectElement(\"flow\",\""+fls[f]+"\")'>";
 					txt+= fls[f];
 					if(typeof flow.sourcePort  != "undefined" && typeof flow.destPort != "undefined")
