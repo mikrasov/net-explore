@@ -49,6 +49,7 @@ function serveClient(server){
 		loadCache(db);
 		app.listen(8080);
 		 
+		io.set('log level', 1)
 		io.of('/pcap').on('connection', function (socket) {
 		  onConnect( db.collection("time_slices"), socket)
 		});
@@ -73,27 +74,9 @@ function serveClient(server){
 		socket.on('get', function (request) {
 			console.log("Data Requested");
 			console.log(request.from + " - " + request.to);
-			findTimeSlice(collection, socket, request.from, request.to);
+			findTimeSlice(collection, socket, request.from, request.to, request.preload);
 		});
-		socket.on('log', function (request) {
-			console.log("Log Saved");
-			console.log(request);
-			
-			var msg = "";
-			for(r in request){
-				if(r == "browser" || r == "metrics"){
-					for(b in request[r])
-						msg += request[r][b]+", ";
-				}
-				else{
-					msg += request[r]+", ";
-				}
-			}
-			msg += "\n";
-			
-			fs.appendFile('./log.csv', msg, function (err) {});
-		});
-		
+		socket.on('log', saveLog);
 	}
 	
 	function updateStats(collection, socket){	 
@@ -110,7 +93,7 @@ function serveClient(server){
 		});      
 	}
 		
-	function findTimeSlice(collection, socket, from, to){
+	function findTimeSlice(collection, socket, from, to, preload ){
 		collection.find({time: { '$gte' : from, '$lte' : to }}).toArray(function(err, results) {
 			for(s in results){
 				var slice = results[s];
@@ -122,7 +105,7 @@ function serveClient(server){
 						node.geo = geo[node.ip];
 				}
 			}
-			socket.emit('1sec', {'from':from, 'to':to, 'data':results});
+			socket.emit('1sec', {'from':from, 'to':to, 'data':results, 'preload': preload});
 		});  
 	}
 	
@@ -139,7 +122,42 @@ function serveClient(server){
 			console.log("GPS Cache Loaded");
 		});  
 	}
+	
+	function saveLog(request){	
+		console.log("Log Saved");
+		console.log(request);
+
+		var msg = "";
+		msg += sortObjectByKey(request);
+		msg += "\n";	
+		
+		fs.appendFile('./log.csv', msg, function (err) {});
+	}
 }
+
+function sortObjectByKey(obj){
+    var keys = [];
+    var sorted_obj = {};
+	var msg = "";
+
+    for(var key in obj){
+        if(key == "browser" || key == "metrics"){
+			msg += sortObjectByKey(obj[key]);
+		}
+		else if(obj.hasOwnProperty(key)){
+            keys.push(key);
+        }
+    }
+
+    // sort keys
+    keys.sort();
+
+    for (i = 0; i < keys.length; i++){
+		msg += (new String(obj[keys[i]])).replace(",",".").replace('"','') + ",";
+	}
+
+    return msg;
+};
 
 /*
   Event types

@@ -24,6 +24,7 @@ var graph = {
 		list: [],
 		count: 0
 	},
+	numSlices: 0
 };
 
 // handles to link and node element groups

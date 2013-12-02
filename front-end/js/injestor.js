@@ -97,6 +97,8 @@ function proccessData(map){
 	proccess("flow", map.flows);
 	proccess("node", map.nodes);
 	proccess("edge", map.edges);
+	
+	graph.numSlices++;
 
 	updateLayout();
 	

@@ -277,6 +277,9 @@
   function elementFilter(data){
   
 	var duration = filters.duration.options[filters.duration.selectedIndex].value;
+	
+	if(typeof TESTER.removeAfter != "undefined") duration = TESTER.removeAfter;
+	
 	var protocol = filters.protocol.options[filters.protocol.selectedIndex].value;
 	var network = filters.network.options[filters.network.selectedIndex].value;
 	var distance = filters.distance.options[filters.distance.selectedIndex].value;

@@ -1,4 +1,4 @@
-var layoutType;
+var layoutType = "force";
 var showingAdvanced = false;
 var pageLoaded = false;
 var playSpeed = 1000;
@@ -8,9 +8,10 @@ var waitForData = false;
 var data = new DataBuffer();
 
 function applicationLoaded(){
-d3.select("#loader").style("display", "none");
-d3.select("#selector").style("display", "block");
-	}
+	d3.select("#loader").style("display", "none");
+	d3.select("#selector").style("display", "block");
+	TESTER.setupTest();
+}
 function setSkipNoData( skip){
 	skipNoData = skip;
 }
@@ -35,9 +36,9 @@ function updatePage(){
 	
 		itIsNow(minTime);
 		updateTimeOffset();
-		selectLayout("force");
-		//selectLayout("map");
-	
+		selectLayout(layoutType);
+
+		TESTER.startTest();
 		pageLoaded = true;
 	}
 	
@@ -49,11 +50,9 @@ function updatePage(){
 function togglePlay(){
 	controls.classed("playing",simulation == null);
 	if(simulation == null){
-		TESTER.startTest();
 		simulation = setInterval(dataTick,playSpeed);
 	}
 	else{
-		TESTER.stopTest();
 		clearInterval(simulation);
 		simulation = null;
 	}

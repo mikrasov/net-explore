@@ -112,7 +112,6 @@ function updateMap(){
 }
 
 function updateMapPositions(){
-	console.log("setting possitions");
 	var projection = overlayContext.getProjection(),
 		padding = 15;
 		
